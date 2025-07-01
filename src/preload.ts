@@ -1,6 +1,6 @@
 import * as path from "node:path";
 import {createUnplugin} from 'unplugin';
-import {MagicString} from 'magic-string-ast';
+import {MagicStringAST} from 'magic-string-ast';
 import {getAST} from "./parser.js";
 import {
     type ExportAllDeclaration,
@@ -49,7 +49,7 @@ export const preload = createUnplugin(
                     return;
                 }
 
-                const s = new MagicString(code)
+                const s = new MagicStringAST(code)
                 const program = getAST(code, id);
 
                 traverse(program, {
@@ -91,7 +91,7 @@ function getExposeInMainWorldCall(name: string, localName: string | null = null)
     return `contextBridge.exposeInMainWorld('__electron_preload__${name}', ${localName || name})`
 }
 
-function handleExportNamedDeclaration(node: ExportNamedDeclaration, code: MagicString) {
+function handleExportNamedDeclaration(node: ExportNamedDeclaration, code: MagicStringAST) {
     if (!node.loc) {
         return
     }
@@ -148,7 +148,7 @@ function handleExportNamedDeclaration(node: ExportNamedDeclaration, code: MagicS
     }
 }
 
-function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, code: MagicString) {
+function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, code: MagicStringAST) {
     if (!node.declaration || !node.declaration.loc || !node.loc) {
         return
     }
@@ -159,7 +159,7 @@ function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, code: Ma
     applyExposingToNode(code, node, 'default', name)
 }
 
-function handleExportAllDeclaration(node: ExportAllDeclaration, code: MagicString) {
+function handleExportAllDeclaration(node: ExportAllDeclaration, code: MagicStringAST) {
     if (!node.loc) {
         return
     }
@@ -171,7 +171,7 @@ function handleExportAllDeclaration(node: ExportAllDeclaration, code: MagicStrin
     )
 }
 
-function applyExposingToNode(code: MagicString, node: Node, name: string, localName: string | null = null) {
+function applyExposingToNode(code: MagicStringAST, node: Node, name: string, localName: string | null = null) {
     if (!node.loc) {
         return code
     }
